@@ -8,18 +8,17 @@ const SERIAL_BAUD_RATE = 9600;
 const SERVIDOR_PORTA = 3300;
 
 // habilita ou desabilita a inserção de dados no banco de dados
-const HABILITAR_OPERACAO_INSERIR = false;
+const HABILITAR_OPERACAO_INSERIR = true;
 
 // função para comunicação serial
 const serial = async (
-    listaIrradiancia,
-    listaPotenciaEstimada
+    listaIrradiancia
 ) => {
 
     // conexão com o banco de dados MySQL
     let poolBancoDados = mysql.createPool(
         {
-            host: '127.0.0.1',
+            host: '10.18.33.187',
             user: 'insert_cellara',
             password: '#Urubu100',
             database: 'cellara',
@@ -50,24 +49,20 @@ const serial = async (
     // processa os dados recebidos do Arduino
     arduino.pipe(new serialport.ReadlineParser({ delimiter: '\r\n' })).on('data', async (data) => {
         console.log(data);
-        const valores = data.split(';');
-        const irradiancia = parseFloat(valores[0]);
-        const potenciaEstimada = parseFloat(valores[1]);
+        const irradiancia = parseFloat(data);
 
         // armazena os valores dos sensores nos arrays correspondentes
         listaIrradiancia.push(irradiancia);
-        listaPotenciaEstimada.push(potenciaEstimada);
 
         // insere os dados no banco de dados (se habilitado)
         if (HABILITAR_OPERACAO_INSERIR) {
 
-            // este insert irá inserir os dados na tabela "medida"
+            // este insert irá inserir os dados na tabela "captura_sensor"
             await poolBancoDados.execute(
-                // 'INSERT INTO medida (sensor_luminosidade, sensor_digital) VALUES (?, ?)',
-                `INSERT INTO captura_sensor (irradiancia, potencia_estimada, fk_sensor) VALUES (?, ?, ?)`,
-            [irradiancia, potenciaEstimada, 1]
+                `INSERT INTO captura_sensor (irradiancia, fk_sensor) VALUES (?, ?)`,
+            [irradiancia, 1]
             );
-            console.log("valores inseridos no banco: ", irradiancia + ", " + potenciaEstimada);
+            console.log("valores inseridos no banco: ", irradiancia);
         }
 
     });
@@ -80,8 +75,7 @@ const serial = async (
 
 // função para criar e configurar o servidor web
 const servidor = (
-    listaIrradiancia,
-    listaPotenciaEstimada
+    listaIrradiancia
 ) => {
     const app = express();
 
@@ -102,9 +96,6 @@ const servidor = (
         return response.json(listaIrradiancia);
     });
 
-    app.get('/valor/potencia_estimada', (_, response) => {
-        return response.json(listaPotenciaEstimada);
-    });
 }
 
 
@@ -112,14 +103,12 @@ const servidor = (
 (async () => {
     // arrays para armazenar os valores dos sensores
     const listaIrradiancia = [];
-    const listaPotenciaEstimada = [];
 
     // inicia a comunicação serial
     await serial(
-        listaIrradiancia,
-        listaPotenciaEstimada
+        listaIrradiancia
       );
       
       // inicia o servidor web
-      servidor(listaIrradiancia,listaPotenciaEstimada);
+      servidor(listaIrradiancia);
 })();
