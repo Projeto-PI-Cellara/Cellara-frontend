@@ -1,0 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+:root {
+    --branco: #FAFCFB;
+    --branco_gelo: #E9EBF5;
+    --amarelo_claro: #FFD700;
+    --amarelo_escuro: #D4AF37;
+    --azul_claro: #4A58A2;
+    --azul_escuro: #2B3B92;
+    --preto: #1C1C1C;
+
+    --azul_escuro_transparente: #2B3B92B3;
+    --preto-sombra: #00000066;
+}
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    background-color: var(--branco_gelo);
+}
+
+button {
+    border: none;
+    cursor: pointer;
+}
+
+.pagina-dashboard {
+    display: flex;
+    flex-direction: row;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.container_corte_lateral p {
+    color: var(--branco);
+}
+
+.container_corte_lateral span {
+    color: var(--amarelo_claro);
+    font-weight: bold;
+}
+
+.container_corte_lateral {
+    display: flex;
+    flex-direction: column;
+    width: 260px;
+    background-color: var(--azul_escuro);
+    align-items: center;
+    padding: 50px;
+    gap: 40px;
+}
+
+.titulo_corte_lateral {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 30px;
+    color: var(--branco);
+}
+
+.titulo_corte_lateral img {
+    height: 42px;
+}
+
+.container-graficos {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 100px;
+    padding-left: 300px;
+    padding-top: 100px;
+    gap: 40px;
+}
+
+
+.card-grafico {
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 12px;
+    width: 100vh;
+}
+
+.btn_corte_lateral {
+    display: flex;
+    flex-direction: column;
+    padding: 100px;
+    gap: 40px;
+}
+
+.botao_grafico {
+    display: flex;
+    background-color: var(--amarelo_claro);
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    padding: 12px;
+    width: 200px;
+    cursor: pointer;
+    transition: background-color .2s ease;
+}
+
+.botao_grafico p{
+    color: var(--azul_escuro);
+    font-weight: 600;
+}
+
+
+.botao_sair {
+    display: flex;
+    background-color: var(--azul_escuro);
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    padding: 12px;
+    width: 200px;
+    border: solid var(--amarelo_claro);
+    cursor: pointer;
+    transition: background-color .2s ease;
+}
+
+.botao_sair:hover {
+    background-color: var(--amarelo_claro);
+}
+
+.botao_grafico:hover{
+    background-color: var(--amarelo_escuro);
+}
+
+.botao_grafico:hover p{
+    color: var(--branco);
+}
+
+
+.container-graficos h1 {
+    color: var(--azul_escuro);
+}
