@@ -1,121 +1,110 @@
 <!doctype html>
 <html>
-  <head>
-    <title>Graphics</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  </head>
 
-  <body>
-    <h1>Graphics</h1>
-    <div style="display: flex">
-      <div style="width: 50%">
-        <canvas id="valorIrradiancia"></canvas>
+<head>
+  <title>Painel de Irradiância</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="pagina-dashboard">
+  <div class="container_corte_lateral">
+    <h2 class="titulo_corte_lateral"> <img src="/assets/logo-cellara-icone.png" alt="Logo Cellara">
+      Cellara
+    </h2>
+    <p>Olá,<span> Fernanda!</span></p>
+
+    <div class="btn_corte_lateral">
+      <div class="botao_grafico">
+        <p>Gráfico</p>
       </div>
-      <div style="width: 50%">
-        <canvas id="valorPotenciaEstimada"></canvas>
+
+      <div class="botao_sair">
+        <p>Sair</p>
       </div>
     </div>
+  </div>
 
-    <script>
-      const irradiancia = new Chart(
-        document.getElementById("valorIrradiancia").getContext("2d"),
-        {
-          type: "line",
-          data: {
-            datasets: [
-              {
-                label: "Irradiância",
-                borderColor: "#63B1BC",
-                backgroundColor: "#ED145B",
+
+  <div class="container-graficos">
+    <h1 class="titulo-principal">Painel de Irradiância</h1>
+    <div class="card-grafico">
+      <canvas id="valorIrradiancia"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const irradiancia = new Chart(
+      document.getElementById("valorIrradiancia").getContext("2d"),
+      {
+        type: "line",
+        data: {
+          datasets: [
+            {
+              label: "Gráfico de Irradiância Solar em tempo real",
+              borderColor: "#FFD700",
+              backgroundColor: "#2B3B92",
+              pointBackgroundColor: "#2B3B92", // preenchimento da bolinha
+              pointBorderColor: "#2B3B92",
+            },
+          ],
+        },
+        options: {
+          scales: {
+            x: {
+              beginAtZero: true,
+            },
+            y: {
+              title: {
+                display: true,
+                text: "W/m²",
               },
-            ],
-          },
-          options: {
-            scales: {
-              x: {
-                beginAtZero: true,
-              },
-              y: {
-                title: {
-                  display: true,
-                  text: "(%)",
-                },
-                beginAtZero: true,
-              },
+              beginAtZero: true,
             },
           },
         },
-      );
+      },
+    );
 
-      const potenciaEstimada = new Chart(
-        document.getElementById("valorPotenciaEstimada").getContext("2d"),
-        {
-          type: "line",
-          data: {
-            datasets: [
-              {
-                label: "Potência Estimada",
-                borderColor: "#63B1BC",
-                backgroundColor: "#ED145B",
-              },
-            ],
-          },
-          options: {
-            scales: {
-              x: {
-                beginAtZero: true,
-              },
-              y: {
-                title: {
-                  display: true,
-                  text: "(%)",
-                },
-                beginAtZero: true,
-              },
-            },
-          },
-        },
-      );
+    let paginacao = {};
+    let tempo = {};
 
-      let paginacao = {};
-      let tempo = {};
+    function obterDados(grafico, endpoint) {
+      fetch("http://localhost:3300/valor/" + endpoint)
+        .then((response) => response.json())
+        .then((valores) => {
+          if (paginacao[endpoint] == null) {
+            paginacao[endpoint] = 0;
+          }
+          if (tempo[endpoint] == null) {
+            tempo[endpoint] = 0;
+          }
 
-      function obterDados(grafico, endpoint) {
-        fetch("http://localhost:3300/valor/" + endpoint)
-          .then((response) => response.json())
-          .then((valores) => {
-            if (paginacao[endpoint] == null) {
-              paginacao[endpoint] = 0;
-            }
-            if (tempo[endpoint] == null) {
-              tempo[endpoint] = 0;
+          const ultimaPaginacao = paginacao[endpoint];
+          paginacao[endpoint] = valores.length;
+          valores = valores.slice(ultimaPaginacao);
+
+          valores.forEach((valor) => {
+            if (
+              grafico.data.labels.length == 10 &&
+              grafico.data.datasets[0].data.length == 10
+            ) {
+              grafico.data.labels.shift();
+              grafico.data.datasets[0].data.shift();
             }
 
-            const ultimaPaginacao = paginacao[endpoint];
-            paginacao[endpoint] = valores.length;
-            valores = valores.slice(ultimaPaginacao);
+            grafico.data.labels.push(tempo[endpoint]++);
+            grafico.data.datasets[0].data.push(parseFloat(valor));
+            grafico.update();
+          });
+        })
+        .catch((error) => console.error("Erro ao obter dados:", error));
+    }
 
-            valores.forEach((valor) => {
-              if (
-                grafico.data.labels.length == 10 &&
-                grafico.data.datasets[0].data.length == 10
-              ) {
-                grafico.data.labels.shift();
-                grafico.data.datasets[0].data.shift();
-              }
+    setInterval(() => {
+      obterDados(irradiancia, "irradiancia");
+    }, 2000);
+  </script>
+</body>
 
-              grafico.data.labels.push(tempo[endpoint]++);
-              grafico.data.datasets[0].data.push(parseFloat(valor));
-              grafico.update();
-            });
-          })
-          .catch((error) => console.error("Erro ao obter dados:", error));
-      }
-
-      setInterval(() => {
-        obterDados(irradiancia, "irradiancia");
-        obterDados(potenciaEstimada, "potencia_estimada");
-      }, 2000);
-    </script>
-  </body>
 </html>
